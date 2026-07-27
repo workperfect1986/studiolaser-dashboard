@@ -297,7 +297,7 @@
       };
       fill("fCliente", clientes, "Todos os clientes");
       fill("fOperador", operadores, "Todos os operadores");
-      fill("localStatus", status, "Todos os status");
+      fill("localStatus", [...new Set(allOrders.map(o => o.etapa).filter(Boolean))].sort(), "Todos os status");
     }
 
     function filtered(){
@@ -309,10 +309,10 @@
       let list = allOrders.filter(o => {
         if (cliente && o.cliente !== cliente) return false;
         if (operador && o.operador !== operador) return false;
-        if (st && o.status !== st) return false;
+        if (st && o.etapa !== st) return false;
         if (pr && o.prazo !== pr) return false;
         if (q) {
-          const hay = [o.idTrabalho,o.idOs,o.nome,o.cliente,o.status,o.operador].join(" ").toLowerCase();
+          const hay = [o.idTrabalho,o.idOs,o.nome,o.cliente,o.etapa,o.operador].join(" ").toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -337,7 +337,7 @@
       const list = filtered();
       const total = list.length || 1;
       const atrasados = list.filter(o => o.prazo === "atrasado").length;
-      const aprov = list.filter(o => /APROVA/i.test(o.status)).length;
+      const aprov = list.filter(o => /APROVA/i.test(o.etapa)).length;
       const clientes = new Set(list.map(o => o.cliente)).size;
       const operadores = new Set(list.map(o => o.operador)).size;
       const arr = list.filter(o => o.prazo === "atrasado").map(o => o.diasAtraso);
@@ -356,7 +356,7 @@
       const byCliente={}, byStatus={}, byDesp={}, byOp={};
       list.forEach(o => {
         byCliente[o.cliente]=(byCliente[o.cliente]||0)+1;
-        byStatus[o.status||"—"]=(byStatus[o.status||"—"]||0)+1;
+        byStatus[o.etapa||"—"]=(byStatus[o.etapa||"—"]||0)+1;
         byOp[o.operador||"—"]=(byOp[o.operador||"—"]||0)+1;
         const dk = o.despachoDate ? formatDate(o.despachoDate) : "Sem data";
         byDesp[dk]=(byDesp[dk]||0)+1;
@@ -411,7 +411,7 @@
           <td class="nome" title="${o.nome||""}">${o.nome||"—"}</td>
           <td>${o.despachoDate ? formatDate(o.despachoDate) : (o.previsao||"—")}</td>
           <td>${o.prazo==="sem"?"—":o.prazo==="atrasado"?`<span class="atrasado">${o.diasAtraso}d atrasado</span>`:o.prazo==="hoje"?`<span class="hoje">Hoje</span>`:`<span class="ok">em ${Math.abs(o.diasAtraso)}d</span>`}</td>
-          <td><span class="badge ${o.statusColor||"default"}">${o.status||"—"}</span></td>
+          <td><span class="badge ${o.statusColor||"default"}">${o.etapa||"—"}</span></td>
           <td>${o.operador||"—"}</td>
           <td>${o.data||"—"}</td>
         </tr>
