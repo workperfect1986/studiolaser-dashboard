@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login · Studio Laser Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220; --bg2: #111a2e; --card: #152038; --card2: #1a2740;
+      --border: rgba(148,163,184,.12); --text: #e8eef9; --muted: #8b9bb8;
+      --accent: #3b82f6; --accent2: #22d3ee; --shadow: 0 10px 40px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1e3a5f 0%, transparent 50%),
+                  radial-gradient(900px 500px at 100% 0%, #1a2f4a 0%, transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .login-box {
+      width: 100%; max-width: 420px;
+      background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 36px 32px;
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      text-align: center; margin-bottom: 28px;
+    }
+    .brand .eyebrow {
+      font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--accent2); font-weight: 600;
+    }
+    .brand h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -.02em; margin-top: 8px; }
+    .brand p { color: var(--muted); font-size: .95rem; margin-top: 6px; }
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 6px; }
+    input {
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 10px; padding: 12px 14px;
+      font: inherit; outline: none; transition: border .2s, box-shadow .2s;
+    }
+    input:focus { border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+    .btn {
+      width: 100%; background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      border: none; color: #fff; font: inherit; font-weight: 600;
+      padding: 12px 16px; border-radius: 10px; cursor: pointer; margin-top: 8px;
+    }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .msg { margin-top: 14px; font-size: .85rem; min-height: 1.2em; text-align: center; }
+    .msg.error { color: #fca5a5; }
+    .msg.success { color: #86efac; }
+    .footer { margin-top: 20px; color: var(--muted); font-size: .78rem; text-align: center; }
+    .footer a { color: var(--accent2); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="brand">
+      <div class="eyebrow">Studio Laser · Nucleus</div>
+      <h1>Entrar no Dashboard</h1>
+      <p>Use suas credenciais do Nucleus</p>
+    </div>
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required placeholder="seu@email.com" />
+      </div>
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="••••••••" />
+      </div>
+      <button class="btn" type="submit" id="btnSubmit">Entrar</button>
+      <div class="msg" id="msg"></div>
+    </form>
+    <div class="footer">Os dados ficam no <a href="https://studiolaser.nucleusapp.com.br" target="_blank" rel="noopener">Nucleus</a> · Apenas autenticação</div>
+  </div>
+  <script>
+    const form = document.getElementById('loginForm');
+    const btn = document.getElementById('btnSubmit');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = ''; msg.className = 'msg';
+      btn.disabled = true; btn.textContent = 'Entrando...';
+      try {
+        const fd = new FormData(form);
+        const res = await fetch('/login', {
+          method: 'POST',
+          body: fd,
+          credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Falha no login');
+        window.location.href = data.redirect || '/';
+      } catch (err) {
+        msg.textContent = err.message;
+        msg.className = 'msg error';
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -5,6 +5,7 @@ from __future__ import annotations
 import io
 import os
 import re
+import secrets
 import threading
 import time
 from datetime import datetime, timezone
@@ -13,10 +14,11 @@ from typing import Any
 from urllib.parse import urlencode
 
 import requests
-from flask import Flask, jsonify, request, send_file, send_from_directory
+from flask import Flask, jsonify, request, send_file, send_from_directory, session, redirect, url_for
 from fpdf import FPDF
 
 app = Flask(__name__, static_folder=".", static_url_path="")
+app.secret_key = os.environ.get("FLASK_SECRET_KEY", secrets.token_hex(32))
 
 BASE_URL = os.environ.get("NUCLEUS_BASE_URL", "https://studiolaser.nucleusapp.com.br").rstrip("/")
 EMAIL = os.environ.get("NUCLEUS_EMAIL", "")
@@ -90,6 +92,16 @@ def _clean(s: str) -> str:
     s = re.sub(r"<[^>]+>", " ", s)
     s = unescape(s)
     return re.sub(r"\s+", " ", s).strip()
+
+
+def login_required(f):
+    from functools import wraps
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if not session.get("logged_in"):
+            return redirect(url_for("login_page"))
+        return f(*args, **kwargs)
+    return wrap
 
 
 def _child_attr(html_block: str, attr: str, tag: str = "a") -> str | None:
@@ -200,6 +212,7 @@ def _parse_fluxo_page(html: str) -> tuple[list[dict[str, Any]], bool]:
 
         orders.append({
             "idOs": id_os,
+            "idTrabalho": id_os,  # fluxo_servicos não tem ID trabalho separado; usa ID OS
             "osUrl": os_url,
             "versao": versao,
             "pedido": pedido,
@@ -593,12 +606,53 @@ def build_pdf(data: dict[str, Any]) -> bytes:
 
 # ---- Rotas ----
 @app.get("/")
+@login_required
 def index():
     return send_from_directory(".", "index.html")
 
 
+@app.get("/login")
+def login_page():
+    return send_from_directory(".", "login.html")
+
+
+@app.post("/login")
+def login():
+    email = request.form.get("email", "").strip()
+    password = request.form.get("password", "")
+    if not email or not password:
+        return jsonify({"error": "Email e senha são obrigatórios"}), 400
+    try:
+        s = _new_session()
+        r = s.get(f"{BASE_URL}/login", timeout=30)
+        r.raise_for_status()
+        tm = re.search(r'name="authenticity_token"[^>]*value="([^"]+)"', r.text)
+        if not tm:
+            tm = re.search(r'value="([^"]+)"[^>]*name="authenticity_token"', r.text)
+        if not tm:
+            return jsonify({"error": "Token não encontrado"}), 500
+        resp = s.post(
+            f"{BASE_URL}/users/do_login",
+            data={"utf8": "✓", "authenticity_token": unescape(tm.group(1)), "email": email, "senha": password, "commit": "Entrar"},
+            timeout=30, allow_redirects=True,
+        )
+        if "/login" in resp.url:
+            return jsonify({"error": "Credenciais inválidas"}), 401
+        session["logged_in"] = True
+        session["nucleus_email"] = email
+        return jsonify({"ok": True, "redirect": "/"})
+    except Exception as exc:
+        return jsonify({"error": str(exc)}), 500
+
+
+@app.get("/logout")
+def logout():
+    return send_from_directory(".", "login.html")
+
+
 @app.get("/relatorio")
 @app.get("/report")
+@login_required
 def report_page():
     return send_from_directory(".", "report.html")
 
@@ -609,6 +663,7 @@ def health():
 
 
 @app.get("/api/fluxo")
+@login_required
 def api_fluxo():
     force = str(request.args.get("force", "")).lower() in ("1", "true", "yes")
     try:
@@ -619,12 +674,14 @@ def api_fluxo():
 
 
 @app.get("/api/work_orders")
+@login_required
 def api_work_orders():
     return api_fluxo()
 
 
 @app.get("/api/report.pdf")
 @app.post("/api/report.pdf")
+@login_required
 def api_report_pdf():
     try:
         data = get_data(force=True)
