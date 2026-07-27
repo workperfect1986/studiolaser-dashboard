@@ -139,6 +139,7 @@ def _base_params(filters: dict[str, Any] | None = None) -> dict[str, str]:
         "cod_produto": "",
         "cod_barras": "",
         "local_gravacao_id": "",
+        "minhas_ordens_servico": "t",
         "commit": "Filtrar",
     }
 
