@@ -25,3 +25,5 @@ dashboard/relatorio_preview.pdf
 dashboard/sample_report.pdf
 dashboard/_*.py
 dashboard/_*.html
+
+.tools/
