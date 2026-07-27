@@ -995,7 +995,7 @@ def api_config_get():
             "operadorId": OPERADOR_ID,
             "operador": OPERADOR_NOME,
             "cacheTtl": CACHE_TTL,
-            "email": EMAIL,
+            "hasCredentials": bool(EMAIL and PASSWORD),
         }
     )
 
@@ -1040,7 +1040,8 @@ def api_config_post():
 
 def main():
     port = int(os.environ.get("PORT", "8765"))
-    host = os.environ.get("HOST", "127.0.0.1")
+    # 0.0.0.0 para Railway/containers; localmente ainda funciona
+    host = os.environ.get("HOST", "0.0.0.0")
     print(f"Dashboard live: http://{host}:{port}")
     print(f"Nucleus base:  {BASE_URL}/work_orders")
     print(f"Cache TTL:     {CACHE_TTL}s")
