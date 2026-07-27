@@ -544,9 +544,9 @@ def build_pdf(data: dict[str, Any]) -> bytes:
     pdf.cell(180, 6, f"Ordens de servico  ({total})")
     pdf.set_font("Helvetica", "", 8)
     pdf.set_text_color(148, 163, 184)
-    pdf.cell(0, 6, "Ordenado por atraso", align="R")
+    pdf.cell(0, 6, f"Ordenado por empresa", align="R")
 
-    cols = [("ID OS", 22), ("Cliente", 34), ("Nome", 78), ("Etapa", 52), ("Operador", 30)]
+    cols = [("ID OS", 20), ("Cliente", 36), ("Nome", 135), ("Etapa", 52), ("Operador", 30)]
 
     def th():
         pdf.set_fill_color(30, 41, 59)
@@ -578,8 +578,8 @@ def build_pdf(data: dict[str, Any]) -> bytes:
         pdf.set_xy(x_start + 2, pdf.get_y() + 0.8)
         vals = [
             (_pdf_safe(o.get("idOs"), 14), 20, (37, 99, 235)),
-            (_pdf_safe(o.get("cliente"), 22), 34, (30, 41, 59)),
-            (_pdf_safe(o.get("nome"), 50), 78, (30, 41, 59)),
+            (_pdf_safe(o.get("cliente"), 22), 36, (30, 41, 59)),
+            (_pdf_safe(o.get("nome"), 85), 135, (30, 41, 59)),
             (_pdf_safe(o.get("etapa"), 34), 52, srgb),
             (_pdf_safe(o.get("operador"), 18), 30, (100, 116, 139)),
         ]
