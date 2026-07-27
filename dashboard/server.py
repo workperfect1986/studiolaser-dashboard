@@ -558,11 +558,7 @@ def build_pdf(data: dict[str, Any]) -> bytes:
         pdf.ln()
 
     def sk(o):
-        d = _parse_br_date(o.get("previsao") or "")
-        if not d:
-            return (2, 0)
-        dd = (hoje - d).days
-        return (0, -dd) if dd > 0 else (1, dd)
+        return (o.get("cliente") or "").strip().lower()
 
     ordered = sorted(orders, key=sk)
     th()
