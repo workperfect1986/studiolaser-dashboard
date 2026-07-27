@@ -236,6 +236,8 @@
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({
             clientes: sel,
+            date_de: getVal("fDateDe"),
+            date_ate: getVal("fDateAte"),
             force: true
           })
         });
