@@ -95,22 +95,24 @@
     <div class="msg" id="msg" style="margin:-6px 0 14px;"></div>
 
     <section class="card">
-      <h2>1. Selecionar empresas</h2>
-      <div class="tools">
-        <input id="searchCo" type="search" placeholder="Buscar empresa..." />
-        <button class="btn ghost" id="btnAll" type="button">Marcar todas</button>
-        <button class="btn ghost" id="btnNone" type="button">Desmarcar</button>
-        <span class="count" id="selCount">0 selecionadas</span>
+      <h2>1. Carregar dados</h2>
+      <div class="row">
+        <div class="field grow">
+          <label>URL base</label>
+          <input id="cfgBaseUrl" type="url" />
+        </div>
+        <div class="field">
+          <label>Data inicial</label>
+          <input id="fDateDe" type="date" />
+        </div>
+        <div class="field">
+          <label>Data final</label>
+          <input id="fDateAte" type="date" />
+        </div>
+        <button class="btn" id="btnLoad" type="button">Carregar trabalhos</button>
       </div>
-      <div class="company-list" id="companyList">
-        <div style="padding:20px;color:var(--muted);text-align:center;">Carregue os trabalhos para listar as empresas</div>
-      </div>
-      <div class="summary">
-        <div class="kpi"><div class="l">Empresas</div><div class="v" id="kEmp">0</div></div>
-        <div class="kpi"><div class="l">Selecionadas</div><div class="v" id="kSel">0</div></div>
-        <div class="kpi"><div class="l">Trabalhos no PDF</div><div class="v" id="kJobs">0</div></div>
-        <div class="kpi"><div class="l">Total carregado</div><div class="v" id="kTotal">0</div></div>
-      </div>
+      <div class="hint">Os dados vêm de /fluxo_servicos. A seleção de empresas é feita localmente sobre a coluna Cliente.</div>
+      <div class="msg" id="msg"></div>
     </section>
 
     <section class="card">
@@ -147,7 +149,9 @@
           all: "1",
           force: "1",
           operador_id: "",
-          company_id: ""
+          company_id: "",
+          date_de: document.getElementById("fDateDe").value,
+          date_ate: document.getElementById("fDateAte").value
         };
         const res = await fetch("/api/work_orders?" + qs(params));
         const data = await res.json();
@@ -231,6 +235,8 @@
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({
             clientes: sel,
+            date_de: document.getElementById("fDateDe").value,
+            date_ate: document.getElementById("fDateAte").value,
             force: true
           })
         });
