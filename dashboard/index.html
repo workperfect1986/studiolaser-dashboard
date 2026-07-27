@@ -176,6 +176,14 @@
           <option value="ok">No prazo</option>
           <option value="sem">Sem previsão</option>
         </select>
+        <div class="field">
+          <label>Data inicial</label>
+          <input id="fDateDe" type="date" />
+        </div>
+        <div class="field">
+          <label>Data final</label>
+          <input id="fDateAte" type="date" />
+        </div>
         <button class="btn ghost" id="btnClear" type="button">Limpar filtros</button>
         <button class="btn ghost" id="btnCsv" type="button">CSV</button>
         <a class="btn pdf" href="/relatorio" style="text-decoration:none;display:inline-flex;align-items:center;">Módulo relatório</a>
@@ -306,11 +314,21 @@
       const operador = document.getElementById("fOperador").value;
       const st = document.getElementById("localStatus").value;
       const pr = document.getElementById("localPrazo").value;
+      const dateDe = document.getElementById("fDateDe").value;
+      const dateAte = document.getElementById("fDateAte").value;
       let list = allOrders.filter(o => {
         if (cliente && o.cliente !== cliente) return false;
         if (operador && o.operador !== operador) return false;
         if (st && o.etapa !== st) return false;
         if (pr && o.prazo !== pr) return false;
+        if (dateDe) {
+          const d = parseDateBR(o.previsao);
+          if (!d || d < new Date(dateDe)) return false;
+        }
+        if (dateAte) {
+          const d = parseDateBR(o.previsao);
+          if (!d || d > new Date(dateAte)) return false;
+        }
         if (q) {
           const hay = [o.idTrabalho,o.idOs,o.nome,o.cliente,o.etapa,o.operador].join(" ").toLowerCase();
           if (!hay.includes(q)) return false;
@@ -456,7 +474,7 @@
         renderAll();
       });
     });
-    ["search","fCliente","fOperador","localStatus","localPrazo"].forEach(id => {
+    ["search","fCliente","fOperador","localStatus","localPrazo","fDateDe","fDateAte"].forEach(id => {
       document.getElementById(id).addEventListener("input", renderAll);
       document.getElementById(id).addEventListener("change", renderAll);
     });
@@ -467,6 +485,8 @@
       document.getElementById("fOperador").value = "";
       document.getElementById("localStatus").value = "";
       document.getElementById("localPrazo").value = "";
+      document.getElementById("fDateDe").value = "";
+      document.getElementById("fDateAte").value = "";
       renderAll();
     });
     document.getElementById("btnCsv").addEventListener("click", () => {

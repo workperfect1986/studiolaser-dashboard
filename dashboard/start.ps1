@@ -21,10 +21,10 @@ if (-not $env:NUCLEUS_USER_ID) {
   $env:NUCLEUS_USER_ID = "7012"
 }
 if (-not $env:NUCLEUS_DATE_DE) {
-  $env:NUCLEUS_DATE_DE = "01/06/2026"
+  $env:NUCLEUS_DATE_DE = "01/01/2026"
 }
 if (-not $env:NUCLEUS_DATE_ATE) {
-  $env:NUCLEUS_DATE_ATE = "31/07/2026"
+  $env:NUCLEUS_DATE_ATE = "31/12/2026"
 }
 if (-not $env:NUCLEUS_CACHE_TTL) {
   $env:NUCLEUS_CACHE_TTL = "60"

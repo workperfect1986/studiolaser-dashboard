@@ -114,7 +114,8 @@ def _child_text(html_block: str) -> str:
 
 
 # ---- filtros base ----
-def _base_params() -> dict[str, str]:
+def _base_params(filters: dict[str, Any] | None = None) -> dict[str, str]:
+    f = filters or {}
     return {
         "utf8": "✓",
         "aba": "todos",
@@ -122,8 +123,8 @@ def _base_params() -> dict[str, str]:
         "os_id": "",
         "work_order_id": "",
         "company_id": "",
-        "date_de": "",
-        "date_ate": "",
+        "date_de": str(f.get("date_de") or ""),
+        "date_ate": str(f.get("date_ate") or ""),
         "date_despacho_de": "",
         "date_despacho_ate": "",
         "user_id": USER_ID,
@@ -138,7 +139,6 @@ def _base_params() -> dict[str, str]:
         "cod_produto": "",
         "cod_barras": "",
         "local_gravacao_id": "",
-        "minhas_ordens_servico": "t",
         "commit": "Filtrar",
     }
 
@@ -237,7 +237,7 @@ def _parse_fluxo_page(html: str) -> tuple[list[dict[str, Any]], bool]:
 
 
 # ---- fetch all ----
-def fetch_fluxo() -> dict[str, Any]:
+def fetch_fluxo(filters: dict[str, Any] | None = None) -> dict[str, Any]:
     session = get_session()
     all_orders: list[dict[str, Any]] = []
     seen: set[str] = set()
@@ -245,7 +245,7 @@ def fetch_fluxo() -> dict[str, Any]:
     etapas: list[dict[str, Any]] = []
 
     while page <= 200:
-        params = _base_params()
+        params = _base_params(filters)
         if page > 1:
             params["page"] = str(page)
         url = f"{BASE_URL}/fluxo_servicos?{urlencode(params)}"
@@ -294,17 +294,19 @@ def fetch_fluxo() -> dict[str, Any]:
     }
 
 
-def get_data(force: bool = False) -> dict[str, Any]:
+def get_data(filters: dict[str, Any] | None = None, force: bool = False) -> dict[str, Any]:
+    filters = filters or {}
+    key = f"fluxo|{filters.get('date_de','')}|{filters.get('date_ate','')}"
     now_t = time.time()
-    if not force and _cache["data"] and (now_t - _cache["fetched_at"]) < CACHE_TTL:
+    if not force and _cache["data"] and _cache["key"] == key and (now_t - _cache["fetched_at"]) < CACHE_TTL:
         return {**_cache["data"], "cached": True, "cacheAgeSec": int(now_t - _cache["fetched_at"]), "error": _cache["error"]}
     try:
-        data = fetch_fluxo()
+        data = fetch_fluxo(filters)
         with _lock:
             _cache["data"] = data
             _cache["error"] = None
             _cache["fetched_at"] = time.time()
-            _cache["key"] = "fluxo"
+            _cache["key"] = key
         return {**data, "cached": False, "cacheAgeSec": 0, "error": None}
     except Exception as exc:
         with _lock:
@@ -666,8 +668,12 @@ def health():
 @login_required
 def api_fluxo():
     force = str(request.args.get("force", "")).lower() in ("1", "true", "yes")
+    filters = {
+        "date_de": request.args.get("date_de", ""),
+        "date_ate": request.args.get("date_ate", ""),
+    }
     try:
-        data = get_data(force=force)
+        data = get_data(filters=filters, force=force)
         return jsonify(data)
     except Exception as exc:
         return jsonify({"error": str(exc), "baseUrl": BASE_URL, "live": False}), 502
