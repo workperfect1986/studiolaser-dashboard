@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Trabalhos · Studio Laser</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220; --bg2: #111a2e; --card: #152038; --card2: #1a2740;
+      --border: rgba(148,163,184,.12); --text: #e8eef9; --muted: #8b9bb8;
+      --accent: #3b82f6; --accent2: #22d3ee; --success: #22c55e;
+      --warning: #f59e0b; --danger: #ef4444; --purple: #a78bfa;
+      --shadow: 0 10px 40px rgba(0,0,0,.35); --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1e3a5f 0%, transparent 50%),
+                  radial-gradient(900px 500px at 100% 0%, #1a2f4a 0%, transparent 45%), var(--bg);
+      color: var(--text); min-height: 100vh; line-height: 1.45;
+    }
+    .wrap { max-width: 1480px; margin: 0 auto; padding: 24px 20px 48px; }
+    header { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+    .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent2); font-weight: 600; }
+    h1 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; letter-spacing: -.02em; }
+    .sub { color: var(--muted); font-size: .93rem; margin-top: 4px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .chip { background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.25); color: #bfdbfe; padding: 7px 12px; border-radius: 999px; font-size: .8rem; font-weight: 500; }
+    .chip.soft { background: rgba(148,163,184,.08); border-color: var(--border); color: var(--muted); }
+    .chip.ok { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.35); color: #86efac; }
+    .chip.err { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35); color: #fca5a5; }
+    .nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .nav a {
+      text-decoration: none; color: #bfdbfe; border: 1px solid rgba(59,130,246,.3);
+      background: rgba(59,130,246,.12); padding: 8px 12px; border-radius: 10px; font-size: .85rem; font-weight: 600;
+    }
+    .nav a.active { background: rgba(59,130,246,.28); color: #fff; }
+    .nav .btn { padding: 8px 12px; font-size: .85rem; }
+    .toolbar, .card {
+      background: linear-gradient(180deg, var(--card) 0%, var(--card2) 100%);
+      border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .toolbar { padding: 14px; margin-bottom: 14px; display: grid; gap: 10px; }
+    .filters-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; min-width: 130px; }
+    .field.grow { flex: 1; min-width: 180px; }
+    .field label { font-size: .72rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    input, select {
+      background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 9px 11px; font: inherit; outline: none;
+    }
+    input:focus, select:focus { border-color: rgba(59,130,246,.55); box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+    .btn {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9); border: none; color: #fff;
+      font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 10px; cursor: pointer; white-space: nowrap;
+    }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn.pdf { background: linear-gradient(135deg, #7c3aed, #2563eb); }
+    .hint { color: var(--muted); font-size: .78rem; margin-top: -2px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab {
+      background: var(--card); border: 1px solid var(--border); color: var(--muted);
+      padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: .9rem;
+    }
+    .tab.active { color: #fff; border-color: rgba(59,130,246,.5); background: rgba(59,130,246,.18); }
+    .tab b { display: block; font-size: 1.35rem; color: var(--text); }
+    .kpis { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 14px; }
+    @media (max-width: 1100px) { .kpis { grid-template-columns: repeat(3,1fr);} }
+    @media (max-width: 640px) { .kpis { grid-template-columns: repeat(2,1fr);} }
+    .kpi { background: linear-gradient(180deg, var(--card), var(--card2)); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+    .kpi .label { color: var(--muted); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+    .kpi .value { font-size: 1.7rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+    .kpi .khint { color: var(--muted); font-size: .78rem; margin-top: 2px; }
+    .kpi.cyan .value { color: var(--accent2); } .kpi.warning .value { color: var(--warning); }
+    .kpi.danger .value { color: var(--danger); } .kpi.success .value { color: var(--success); } .kpi.purple .value { color: var(--purple); }
+    .grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; margin-bottom: 14px; }
+    @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+    .card { padding: 16px; }
+    .card h2 { font-size: .92rem; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; gap: 8px; }
+    .card h2 span { color: var(--muted); font-weight: 500; font-size: .78rem; }
+    .chart-box { position: relative; height: 260px; }
+    .table-tools { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: center; }
+    .table-tools input { flex: 1; min-width: 200px; }
+    .count-pill { margin-left: auto; color: var(--muted); font-size: .84rem; }
+    .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--border); max-height: 560px; }
+    table { width: 100%; border-collapse: collapse; min-width: 1050px; }
+    th, td { padding: 10px 11px; text-align: left; border-bottom: 1px solid var(--border); font-size: .86rem; }
+    th { background: rgba(15,23,42,.95); color: var(--muted); font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; position: sticky; top: 0; z-index: 1; cursor: pointer; user-select: none; }
+    th:hover { color: var(--text); }
+    tbody tr:hover { background: rgba(59,130,246,.06); }
+    td a { color: #93c5fd; text-decoration: none; font-weight: 600; font-family: "JetBrains Mono", monospace; font-size: .8rem; }
+    td a:hover { text-decoration: underline; }
+    .nome { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .badge { display: inline-flex; padding: 3px 8px; border-radius: 999px; font-size: .72rem; font-weight: 600; border: 1px solid transparent; }
+    .badge.info { background: rgba(59,130,246,.12); color: #93c5fd; border-color: rgba(59,130,246,.25); }
+    .badge.success { background: rgba(34,197,94,.12); color: #86efac; border-color: rgba(34,197,94,.25); }
+    .badge.danger { background: rgba(239,68,68,.12); color: #fca5a5; border-color: rgba(239,68,68,.25); }
+    .badge.warning { background: rgba(245,158,11,.12); color: #fbbf24; border-color: rgba(245,158,11,.25); }
+    .badge.default { background: rgba(148,163,184,.1); color: #cbd5e1; border-color: var(--border); }
+    .cliente-pill { display: inline-block; padding: 3px 8px; border-radius: 6px; background: rgba(167,139,250,.1); color: #c4b5fd; font-size: .76rem; font-weight: 600; }
+    .atrasado { color: #fca5a5; font-weight: 600; } .hoje { color: #fde68a; font-weight: 600; } .ok { color: #86efac; }
+    .empty { text-align: center; padding: 36px; color: var(--muted); }
+    footer { margin-top: 18px; color: var(--muted); font-size: .8rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(11,18,32,.55); display: none; align-items: center; justify-content: center; z-index: 50; backdrop-filter: blur(2px); }
+    .loading-overlay.show { display: flex; }
+    .loading-box { background: var(--card); border: 1px solid var(--border); padding: 18px 24px; border-radius: 14px; box-shadow: var(--shadow); }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loading"><div class="loading-box">Captando trabalhos do Nucleus…</div></div>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="eyebrow">Studio Laser · Nucleus · Work Orders</div>
+        <h1>Dashboard Lista de Trabalhos</h1>
+        <p class="sub" id="subtitle">Atualização manual · filtros locais por colunas</p>
+      </div>
+      <div class="meta">
+        <div class="nav">
+          <button class="btn" id="btnRefresh" type="button">Atualizar dados</button>
+          <a class="active" href="/">Dashboard</a>
+          <a href="/relatorio">Relatório PDF</a>
+        </div>
+        <div class="chip ok" id="chipStatus">PRONTO</div>
+        <div class="chip" id="chipPeriodo">Período</div>
+        <div class="chip soft" id="chipGerado">—</div>
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" type="button" data-finalizado="0"><b id="countTodos">—</b>Todos</button>
+      <button class="tab" type="button" data-finalizado="1"><b id="countFinal">—</b>Finalizados</button>
+    </div>
+
+    <section class="kpis" id="kpis"></section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Trabalhos por cliente <span>filtro local</span></h2>
+        <div class="chart-box"><canvas id="chartClientes"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Distribuição por status <span>filtro local</span></h2>
+        <div class="chart-box"><canvas id="chartStatus"></canvas></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Previsão de despacho <span>por data</span></h2>
+        <div class="chart-box"><canvas id="chartDespacho"></canvas></div>
+      </div>
+      <div class="card">
+        <h2>Por operador <span>coluna operador</span></h2>
+        <div class="chart-box"><canvas id="chartOperador"></canvas></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>
+        Trabalhos
+        <span class="count-pill" id="tableCount"></span>
+      </h2>
+      <div class="table-tools">
+        <input id="search" type="search" placeholder="Buscar: ID, nome, cliente, status..." />
+        <select id="fCliente"><option value="">Todos os clientes</option></select>
+        <select id="fOperador"><option value="">Todos os operadores</option></select>
+        <select id="localStatus"><option value="">Todos os status</option></select>
+        <select id="localPrazo">
+          <option value="">Todos os prazos</option>
+          <option value="atrasado">Atrasados</option>
+          <option value="hoje">Despacho hoje</option>
+          <option value="ok">No prazo</option>
+          <option value="sem">Sem previsão</option>
+        </select>
+        <button class="btn ghost" id="btnClear" type="button">Limpar filtros</button>
+        <button class="btn ghost" id="btnCsv" type="button">CSV</button>
+        <a class="btn pdf" href="/relatorio" style="text-decoration:none;display:inline-flex;align-items:center;">Módulo relatório</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-sort="idTrabalho">ID trabalho</th>
+              <th data-sort="idOs">ID OS</th>
+              <th data-sort="cliente">Cliente</th>
+              <th data-sort="nome">Nome</th>
+              <th data-sort="despachoDate">Despacho</th>
+              <th data-sort="diasAtraso">Atraso</th>
+              <th data-sort="status">Status</th>
+              <th data-sort="operador">Operador</th>
+              <th data-sort="data">Data</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>
+      <div id="footerBase">Fonte: /work_orders</div>
+      <div id="footerError"></div>
+    </footer>
+  </div>
+
+  <script>
+    const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+    let BASE = "https://studiolaser.nucleusapp.com.br";
+    let raw = null, allOrders = [], charts = {};
+    let sortKey = "diasAtraso", sortDir = -1;
+    let finalizado = false, loading = false;
+    let countsCache = { todos: "—", finalizados: "—" };
+
+    function parseDateBR(str) {
+      const m = String(str||"").match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (!m) return null;
+      return new Date(+m[3], +m[2]-1, +m[1]);
+    }
+    function daysBetween(a,b){ return Math.floor((a-b)/(24*60*60*1000)); }
+    function formatDate(d){ return d ? d.toLocaleDateString("pt-BR") : "—"; }
+    function setLoading(v){
+      loading = v;
+      document.getElementById("loading").classList.toggle("show", v);
+      document.getElementById("btnRefresh").disabled = v;
+    }
+    function enrich(list){
+      return list.map(o => {
+        const despachoDate = parseDateBR(o.previsao);
+        let diasAtraso = null, prazo = "sem";
+        if (despachoDate) {
+          diasAtraso = daysBetween(TODAY, despachoDate);
+          prazo = diasAtraso > 0 ? "atrasado" : diasAtraso === 0 ? "hoje" : "ok";
+        }
+        return { ...o, despachoDate, diasAtraso, prazo };
+      });
+    }
+    function qs(params){
+      const p = new URLSearchParams();
+      Object.entries(params).forEach(([k,v]) => { if (v !== "" && v != null) p.set(k, v); });
+      return p.toString();
+    }
+    function nucleusParams(){
+      return {
+        finalizado: finalizado ? "1" : "",
+        all: "1",
+        force: "1",
+        operador_id: "",
+        company_id: ""
+      };
+    }
+
+    async function loadConfig(){
+      const res = await fetch("/api/config");
+      if (!res.ok) return;
+      const cfg = await res.json();
+      BASE = cfg.baseUrl || BASE;
+    }
+
+    async function fetchData(){
+      if (loading) return;
+      setLoading(true);
+      document.getElementById("chipStatus").className = "chip soft";
+      document.getElementById("chipStatus").textContent = "ATUALIZANDO…";
+      try {
+        const res = await fetch("/api/work_orders?" + qs(nucleusParams()));
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Falha na API");
+        applyData(data);
+        document.getElementById("chipStatus").className = "chip ok";
+        document.getElementById("chipStatus").textContent = "ATUALIZADO";
+      } catch (err) {
+        document.getElementById("chipStatus").className = "chip err";
+        document.getElementById("chipStatus").textContent = "ERRO";
+        document.getElementById("footerError").textContent = String(err.message || err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    function fillLocalOptions(){
+      const clientes = [...new Set(allOrders.map(o => o.cliente).filter(Boolean))].sort();
+      const operadores = [...new Set(allOrders.map(o => o.operador).filter(Boolean))].sort();
+      const status = [...new Set(allOrders.map(o => o.status).filter(Boolean))].sort();
+      const fill = (id, values, allLabel) => {
+        const sel = document.getElementById(id);
+        const cur = sel.value;
+        sel.innerHTML = `<option value="">${allLabel}</option>`;
+        values.forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v; opt.textContent = v;
+          sel.appendChild(opt);
+        });
+        if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+      };
+      fill("fCliente", clientes, "Todos os clientes");
+      fill("fOperador", operadores, "Todos os operadores");
+      fill("localStatus", status, "Todos os status");
+    }
+
+    function filtered(){
+      const q = document.getElementById("search").value.trim().toLowerCase();
+      const cliente = document.getElementById("fCliente").value;
+      const operador = document.getElementById("fOperador").value;
+      const st = document.getElementById("localStatus").value;
+      const pr = document.getElementById("localPrazo").value;
+      let list = allOrders.filter(o => {
+        if (cliente && o.cliente !== cliente) return false;
+        if (operador && o.operador !== operador) return false;
+        if (st && o.status !== st) return false;
+        if (pr && o.prazo !== pr) return false;
+        if (q) {
+          const hay = [o.idTrabalho,o.idOs,o.nome,o.cliente,o.status,o.operador].join(" ").toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+      list.sort((a,b) => {
+        let va=a[sortKey], vb=b[sortKey];
+        if (sortKey==="despachoDate"){ va=a.despachoDate?.getTime()||0; vb=b.despachoDate?.getTime()||0; }
+        if (typeof va==="string") va=va.toLowerCase();
+        if (typeof vb==="string") vb=vb.toLowerCase();
+        if (va==null) va=-9999; if (vb==null) vb=-9999;
+        if (va<vb) return -1*sortDir; if (va>vb) return 1*sortDir; return 0;
+      });
+      return list;
+    }
+
+    function destroyCharts(){
+      Object.values(charts).forEach(c => { try{c.destroy();}catch(_){}});
+      charts = {};
+    }
+
+    function renderAll(){
+      const list = filtered();
+      const total = list.length || 1;
+      const atrasados = list.filter(o => o.prazo === "atrasado").length;
+      const aprov = list.filter(o => /APROVA/i.test(o.status)).length;
+      const clientes = new Set(list.map(o => o.cliente)).size;
+      const operadores = new Set(list.map(o => o.operador)).size;
+      const arr = list.filter(o => o.prazo === "atrasado").map(o => o.diasAtraso);
+      const media = arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : 0;
+
+      document.getElementById("kpis").innerHTML = `
+        <div class="kpi cyan"><div class="label">Filtrados</div><div class="value">${list.length}</div><div class="khint">de ${allOrders.length} carregados</div></div>
+        <div class="kpi warning"><div class="label">Em aprovação</div><div class="value">${aprov}</div><div class="khint">${Math.round(aprov/total*100)}%</div></div>
+        <div class="kpi danger"><div class="label">Atrasados</div><div class="value">${atrasados}</div><div class="khint">despacho vencido</div></div>
+        <div class="kpi purple"><div class="label">Clientes</div><div class="value">${clientes}</div><div class="khint">coluna cliente</div></div>
+        <div class="kpi"><div class="label">Operadores</div><div class="value">${operadores}</div><div class="khint">coluna operador</div></div>
+        <div class="kpi success"><div class="label">Média atraso</div><div class="value">${media}<span style="font-size:1rem">d</span></div><div class="khint">entre atrasados</div></div>
+      `;
+
+      destroyCharts();
+      const byCliente={}, byStatus={}, byDesp={}, byOp={};
+      list.forEach(o => {
+        byCliente[o.cliente]=(byCliente[o.cliente]||0)+1;
+        byStatus[o.status||"—"]=(byStatus[o.status||"—"]||0)+1;
+        byOp[o.operador||"—"]=(byOp[o.operador||"—"]||0)+1;
+        const dk = o.despachoDate ? formatDate(o.despachoDate) : "Sem data";
+        byDesp[dk]=(byDesp[dk]||0)+1;
+      });
+      const clienteEntries = Object.entries(byCliente).sort((a,b)=>b[1]-a[1]).slice(0,12);
+      const statusEntries = Object.entries(byStatus).sort((a,b)=>b[1]-a[1]);
+      const opEntries = Object.entries(byOp).sort((a,b)=>b[1]-a[1]).slice(0,12);
+      const despEntries = Object.entries(byDesp).sort((a,b)=>{
+        const da=parseDateBR(a[0]), db=parseDateBR(b[0]);
+        if(!da) return 1; if(!db) return -1; return da-db;
+      });
+      const defs = {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ labels:{ color:"#8b9bb8", boxWidth:12 } } },
+        scales:{
+          x:{ ticks:{ color:"#8b9bb8", font:{size:11} }, grid:{ color:"rgba(148,163,184,.08)" } },
+          y:{ ticks:{ color:"#8b9bb8" }, grid:{ color:"rgba(148,163,184,.08)" }, beginAtZero:true, precision:0 }
+        }
+      };
+      charts.clientes = new Chart(document.getElementById("chartClientes"), {
+        type:"bar",
+        data:{ labels: clienteEntries.map(e=>e[0]), datasets:[{ data: clienteEntries.map(e=>e[1]), backgroundColor:["#3b82f6","#22d3ee","#a78bfa","#f59e0b","#f472b6","#22c55e","#64748b"], borderRadius:8, borderSkipped:false }] },
+        options:{ ...defs, plugins:{ legend:{ display:false } } }
+      });
+      charts.status = new Chart(document.getElementById("chartStatus"), {
+        type:"doughnut",
+        data:{ labels: statusEntries.map(e=>e[0]), datasets:[{ data: statusEntries.map(e=>e[1]), backgroundColor:["#f59e0b","#3b82f6","#22d3ee","#a78bfa","#22c55e","#ef4444","#94a3b8"], borderWidth:0 }] },
+        options:{ responsive:true, maintainAspectRatio:false, cutout:"60%", plugins:{ legend:{ position:"bottom", labels:{ color:"#8b9bb8", boxWidth:12, font:{ size:11 } } } } }
+      });
+      charts.desp = new Chart(document.getElementById("chartDespacho"), {
+        type:"line",
+        data:{ labels: despEntries.map(e=>e[0]), datasets:[{ data: despEntries.map(e=>e[1]), borderColor:"#22d3ee", backgroundColor:"rgba(34,211,238,.15)", fill:true, tension:.35, pointRadius:3 }] },
+        options:{ ...defs, plugins:{ legend:{ display:false } } }
+      });
+      charts.op = new Chart(document.getElementById("chartOperador"), {
+        type:"bar",
+        data:{ labels: opEntries.map(e=>e[0]), datasets:[{ data: opEntries.map(e=>e[1]), backgroundColor:"#a78bfa", borderRadius:6 }] },
+        options:{ ...defs, plugins:{ legend:{ display:false } } }
+      });
+
+      document.getElementById("tableCount").textContent = `${list.length} de ${allOrders.length} OS`;
+      const tbody = document.getElementById("tbody");
+      if (!list.length) {
+        tbody.innerHTML = `<tr><td colspan="9" class="empty">Nenhum trabalho com os filtros atuais</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = list.map(o => `
+        <tr>
+          <td><a href="${BASE}${o.trabalhoUrl||"/work_orders/"+o.idTrabalho}" target="_blank" rel="noopener">${o.idTrabalho}</a></td>
+          <td>${o.idOs||"—"}</td>
+          <td><span class="cliente-pill">${o.cliente||"—"}</span></td>
+          <td class="nome" title="${o.nome||""}">${o.nome||"—"}</td>
+          <td>${o.despachoDate ? formatDate(o.despachoDate) : (o.previsao||"—")}</td>
+          <td>${o.prazo==="sem"?"—":o.prazo==="atrasado"?`<span class="atrasado">${o.diasAtraso}d atrasado</span>`:o.prazo==="hoje"?`<span class="hoje">Hoje</span>`:`<span class="ok">em ${Math.abs(o.diasAtraso)}d</span>`}</td>
+          <td><span class="badge ${o.statusColor||"default"}">${o.status||"—"}</span></td>
+          <td>${o.operador||"—"}</td>
+          <td>${o.data||"—"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function applyData(data){
+      raw = data;
+      BASE = data.baseUrl || BASE;
+      allOrders = enrich(data.orders || []);
+      document.getElementById("chipPeriodo").textContent = data.filtro?.periodo || "—";
+      const when = data.generatedAt ? new Date(data.generatedAt).toLocaleString("pt-BR") : "—";
+      document.getElementById("chipGerado").textContent = when;
+      document.getElementById("subtitle").textContent = `${BASE.replace(/^https?:\/\//,"")} · ${allOrders.length} trabalhos carregados`;
+      document.getElementById("footerBase").textContent = `Fonte: ${BASE}/work_orders`;
+      // contadores recalculados a cada importação (dados tratados, sem Deletado)
+      if (finalizado) countsCache.finalizados = data.counts?.importados ?? allOrders.length;
+      else countsCache.todos = data.counts?.importados ?? allOrders.length;
+      document.getElementById("countTodos").textContent = countsCache.todos;
+      document.getElementById("countFinal").textContent = countsCache.finalizados;
+      const removed = data.importStats?.removidosDeletado || 0;
+      const brutos = data.importStats?.brutos || allOrders.length;
+      document.getElementById("footerError").textContent = data.error
+        ? data.error
+        : (removed ? `Importados ${allOrders.length} · brutos ${brutos} · removidos Deletado: ${removed}` : "");
+      fillLocalOptions();
+      renderAll();
+    }
+
+    document.querySelectorAll(".tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        finalizado = tab.dataset.finalizado === "1";
+        fetchData();
+      });
+    });
+    document.querySelectorAll("th[data-sort]").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.sort;
+        if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = 1; }
+        renderAll();
+      });
+    });
+    ["search","fCliente","fOperador","localStatus","localPrazo"].forEach(id => {
+      document.getElementById(id).addEventListener("input", renderAll);
+      document.getElementById(id).addEventListener("change", renderAll);
+    });
+    document.getElementById("btnRefresh").addEventListener("click", fetchData);
+    document.getElementById("btnClear").addEventListener("click", () => {
+      document.getElementById("search").value = "";
+      document.getElementById("fCliente").value = "";
+      document.getElementById("fOperador").value = "";
+      document.getElementById("localStatus").value = "";
+      document.getElementById("localPrazo").value = "";
+      renderAll();
+    });
+    document.getElementById("btnCsv").addEventListener("click", () => {
+      const list = filtered();
+      const header = ["idTrabalho","idOs","cliente","nome","previsao","diasAtraso","prazo","status","operador","data"];
+      const lines = [header.join(";")];
+      list.forEach(o => {
+        lines.push(header.map(k => {
+          let v = o[k];
+          if (k === "previsao") v = o.despachoDate ? formatDate(o.despachoDate) : o.previsao;
+          return `"${String(v??"").replace(/"/g,'""')}"`;
+        }).join(";"));
+      });
+      const blob = new Blob(["\uFEFF"+lines.join("\n")], {type:"text/csv;charset=utf-8"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "trabalhos.csv";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    (async () => {
+      await loadConfig();
+      await fetchData();
+    })();
+  </script>
+</body>
+</html>

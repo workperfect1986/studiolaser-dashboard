@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Opção B · Neon Ops</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #05070f;
+      --panel: rgba(12, 18, 36, .88);
+      --line: rgba(94, 234, 212, .16);
+      --text: #e8f7ff;
+      --muted: #7f97b3;
+      --cyan: #22d3ee;
+      --pink: #f472b6;
+      --lime: #a3e635;
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      font-family: Sora, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 0%, rgba(34,211,238,.18), transparent 50%),
+        radial-gradient(700px 420px at 100% 20%, rgba(244,114,182,.14), transparent 45%),
+        radial-gradient(600px 400px at 70% 100%, rgba(163,230,53,.08), transparent 40%),
+        var(--bg);
+      padding: 28px;
+    }
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(10,16,32,.95), rgba(5,8,18,.98));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.02), 0 30px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+      border-radius: 28px;
+      overflow: hidden;
+      position: relative;
+    }
+    .shell::before {
+      content: "";
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(34,211,238,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,211,238,.04) 1px, transparent 1px);
+      background-size: 36px 36px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 85%);
+      pointer-events: none;
+    }
+    .head {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      padding: 28px 28px 18px;
+    }
+    .eyebrow {
+      font-family: Orbitron, sans-serif;
+      font-size: 11px;
+      letter-spacing: .22em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    h1 {
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: -.03em;
+    }
+    h1 span {
+      background: linear-gradient(90deg, var(--cyan), var(--pink));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .sub { color: var(--muted); margin-top: 8px; font-size: 14px; max-width: 48ch; }
+    .nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip, .btn {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      color: var(--text);
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .btn {
+      background: linear-gradient(135deg, rgba(34,211,238,.2), rgba(244,114,182,.2));
+      border-color: rgba(34,211,238,.35);
+      box-shadow: 0 0 24px rgba(34,211,238,.12);
+      cursor: pointer;
+    }
+    .chip.live { color: var(--lime); border-color: rgba(163,230,53,.3); }
+    .kpis {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      padding: 0 28px 22px;
+    }
+    .kpi {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .kpi .l { color: var(--muted); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .kpi .v { font-family: Orbitron, sans-serif; font-size: 28px; margin-top: 10px; }
+    .kpi.cyan .v { color: var(--cyan); text-shadow: 0 0 18px rgba(34,211,238,.35); }
+    .kpi.pink .v { color: var(--pink); text-shadow: 0 0 18px rgba(244,114,182,.3); }
+    .kpi.lime .v { color: var(--lime); }
+    .kpi.amber .v { color: var(--amber); }
+    .body {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+      padding: 0 28px 28px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 340px;
+    }
+    .card h2 {
+      font-size: 13px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .chart {
+      height: 220px;
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      padding: 10px 4px 0;
+    }
+    .col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+      align-items: center;
+      gap: 8px;
+    }
+    .col .b {
+      width: 100%;
+      border-radius: 12px 12px 6px 6px;
+      background: linear-gradient(180deg, var(--cyan), rgba(34,211,238,.08));
+      box-shadow: 0 0 24px rgba(34,211,238,.18);
+    }
+    .col:nth-child(2) .b { background: linear-gradient(180deg, var(--pink), rgba(244,114,182,.08)); box-shadow: 0 0 24px rgba(244,114,182,.16); }
+    .col:nth-child(3) .b { background: linear-gradient(180deg, var(--lime), rgba(163,230,53,.08)); box-shadow: 0 0 24px rgba(163,230,53,.12); }
+    .col:nth-child(4) .b { background: linear-gradient(180deg, var(--amber), rgba(251,191,36,.08)); }
+    .col:nth-child(5) .b { background: linear-gradient(180deg, #818cf8, rgba(129,140,248,.08)); }
+    .col label { font-size: 10px; color: var(--muted); text-align: center; }
+    .radar {
+      height: 220px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at center, rgba(34,211,238,.12), transparent 55%),
+        repeating-radial-gradient(circle at center, rgba(255,255,255,.05) 0 1px, transparent 1px 28px);
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .orb {
+      width: 140px; height: 140px; border-radius: 50%;
+      background: conic-gradient(from 210deg, var(--cyan), var(--pink), var(--lime), var(--cyan));
+      filter: blur(.2px);
+      box-shadow: 0 0 40px rgba(34,211,238,.25);
+      display: grid; place-items: center;
+    }
+    .orb::after {
+      content: "OPS";
+      width: 86px; height: 86px; border-radius: 50%;
+      background: #07101f;
+      display: grid; place-items: center;
+      font-family: Orbitron, sans-serif;
+      font-size: 14px;
+      letter-spacing: .16em;
+      color: var(--cyan);
+    }
+    .rows { margin-top: 16px; display: grid; gap: 8px; }
+    .row {
+      display: flex; justify-content: space-between; gap: 10px;
+      padding: 10px 12px; border-radius: 12px;
+      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.04);
+      font-size: 13px;
+    }
+    .row b { color: var(--cyan); font-family: Orbitron, sans-serif; font-size: 11px; }
+    .tag {
+      font-size: 11px; font-weight: 700; color: var(--amber);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="head">
+      <div>
+        <div class="eyebrow">Opção B · Neon Ops Console</div>
+        <h1>Controle de fila em modo <span>missão</span></h1>
+        <p class="sub">Dark UI com glow, grid técnico e leitura de status em tempo real. Bom para operação diária e sensação de painel de controle.</p>
+      </div>
+      <div class="nav">
+        <button class="btn">Atualizar dados</button>
+        <div class="chip">Dashboard</div>
+        <div class="chip">Relatório PDF</div>
+        <div class="chip live">● LIVE READY</div>
+      </div>
+    </div>
+    <div class="kpis">
+      <div class="kpi cyan"><div class="l">Importados</div><div class="v">133</div></div>
+      <div class="kpi pink"><div class="l">Atrasados</div><div class="v">48</div></div>
+      <div class="kpi lime"><div class="l">Clientes</div><div class="v">27</div></div>
+      <div class="kpi amber"><div class="l">Aprovação</div><div class="v">129</div></div>
+      <div class="kpi"><div class="l">Média atraso</div><div class="v">11d</div></div>
+    </div>
+    <div class="body">
+      <div class="card">
+        <h2>Volume por cliente</h2>
+        <div class="chart">
+          <div class="col"><div class="b" style="height:92%"></div><label>RIO NOVO</label></div>
+          <div class="col"><div class="b" style="height:76%"></div><label>EPEMA</label></div>
+          <div class="col"><div class="b" style="height:48%"></div><label>SOLPP</label></div>
+          <div class="col"><div class="b" style="height:36%"></div><label>SID</label></div>
+          <div class="col"><div class="b" style="height:28%"></div><label>PACK</label></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Radar operacional</h2>
+        <div class="radar"><div class="orb"></div></div>
+        <div class="rows">
+          <div class="row"><span><b>1567141</b> · EPEMA</span><span class="tag">2d ATRASO</span></div>
+          <div class="row"><span><b>1563313</b> · DELTABAG</span><span class="tag">3d ATRASO</span></div>
+          <div class="row"><span><b>1561257</b> · PACKSEVEN</span><span class="tag">ANÁLISE</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

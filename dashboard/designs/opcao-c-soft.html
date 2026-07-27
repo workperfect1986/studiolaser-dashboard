@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Opção C · Soft Product</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --blue: #2563eb;
+      --violet: #7c3aed;
+      --rose: #e11d48;
+      --emerald: #059669;
+      --amber: #d97706;
+      --shadow: 0 18px 50px rgba(15, 23, 42, .08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 420px at 0% 0%, rgba(37,99,235,.10), transparent 50%),
+        radial-gradient(700px 380px at 100% 0%, rgba(124,58,237,.10), transparent 45%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px;
+    }
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 18px;
+      min-height: 760px;
+    }
+    .sidebar {
+      background: linear-gradient(180deg, #0f172a, #1e293b);
+      color: #e2e8f0;
+      border-radius: 28px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+    }
+    .brand {
+      font-weight: 800;
+      font-size: 18px;
+      margin-bottom: 28px;
+      letter-spacing: -.03em;
+    }
+    .brand small {
+      display: block;
+      color: #94a3b8;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      color: #cbd5e1;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .nav-item.active {
+      background: rgba(37,99,235,.22);
+      color: #fff;
+      box-shadow: inset 0 0 0 1px rgba(147,197,253,.25);
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: currentColor; opacity: .8;
+    }
+    .content { display: grid; gap: 16px; align-content: start; }
+    .topbar {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px 20px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+    .topbar h1 {
+      font-size: 24px;
+      letter-spacing: -.04em;
+      font-weight: 800;
+    }
+    .topbar p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--blue), var(--violet));
+      color: white;
+      box-shadow: 0 10px 24px rgba(37,99,235,.25);
+    }
+    .btn.ghost {
+      background: #f8fafc;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .kpi {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .kpi .l { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .kpi .v { font-size: 32px; font-weight: 800; letter-spacing: -.04em; margin-top: 8px; }
+    .kpi .s { color: var(--muted); font-size: 12px; margin-top: 6px; }
+    .kpi.blue .v { color: var(--blue); }
+    .kpi.rose .v { color: var(--rose); }
+    .kpi.emerald .v { color: var(--emerald); }
+    .kpi.amber .v { color: var(--amber); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 14px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      min-height: 360px;
+    }
+    .card h2 {
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin-bottom: 16px;
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .pill {
+      background: #f1f5f9;
+      color: #334155;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .pill.on { background: #dbeafe; color: #1d4ed8; }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th {
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+    .table td {
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .id { font-weight: 800; color: var(--blue); }
+    .muted { color: var(--muted); }
+    .badge {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .badge.warn { background: #fff7ed; color: #c2410c; }
+    .badge.hot { background: #fff1f2; color: #be123c; }
+    .badge.info { background: #eff6ff; color: #1d4ed8; }
+    .progress {
+      display: grid;
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .p-item .top {
+      display: flex; justify-content: space-between;
+      font-size: 13px; font-weight: 700; margin-bottom: 8px;
+    }
+    .track {
+      height: 10px; border-radius: 999px; background: #eef2ff; overflow: hidden;
+    }
+    .fill {
+      height: 100%; border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--violet));
+    }
+    .fill.a { width: 92%; }
+    .fill.b { width: 74%; background: linear-gradient(90deg, #06b6d4, #2563eb); }
+    .fill.c { width: 48%; background: linear-gradient(90deg, #f59e0b, #ef4444); }
+    .fill.d { width: 36%; background: linear-gradient(90deg, #10b981, #14b8a6); }
+    .note {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">Studio Laser<small>Ops Workspace</small></div>
+      <div class="nav-item active"><span class="dot"></span>Dashboard</div>
+      <div class="nav-item"><span class="dot"></span>Relatório PDF</div>
+      <div class="nav-item"><span class="dot"></span>Clientes</div>
+      <div class="nav-item"><span class="dot"></span>Atrasados</div>
+      <div class="nav-item"><span class="dot"></span>Configurações</div>
+    </aside>
+    <main class="content">
+      <div class="topbar">
+        <div>
+          <h1>Opção C · Soft Product UI</h1>
+          <p>Visual limpo de SaaS moderno, com sidebar e cards suaves. Melhor para uso diário e onboarding de time.</p>
+        </div>
+        <div class="actions">
+          <button class="btn primary">Atualizar dados</button>
+          <button class="btn ghost">Relatório PDF</button>
+        </div>
+      </div>
+      <div class="kpis">
+        <div class="kpi blue"><div class="l">Importados</div><div class="v">133</div><div class="s">após excluir Deletado</div></div>
+        <div class="kpi rose"><div class="l">Atrasados</div><div class="v">48</div><div class="s">precisam de follow-up</div></div>
+        <div class="kpi emerald"><div class="l">Clientes</div><div class="v">27</div><div class="s">na base carregada</div></div>
+        <div class="kpi amber"><div class="l">Em aprovação</div><div class="v">129</div><div class="s">maior gargalo</div></div>
+      </div>
+      <div class="grid">
+        <section class="card">
+          <h2>Trabalhos prioritários</h2>
+          <div class="pill-row">
+            <div class="pill on">Todos</div>
+            <div class="pill">Atrasados</div>
+            <div class="pill">Aprovação</div>
+            <div class="pill">Análise</div>
+          </div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Cliente / Nome</th>
+                <th>Status</th>
+                <th>Prazo</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="id">1567141</td>
+                <td>EPEMA<br><span class="muted">BUQUE FARINHA DE TRIGO</span></td>
+                <td><span class="badge warn">JOB EM APROVAÇÃO</span></td>
+                <td><span class="badge hot">2d atrasado</span></td>
+              </tr>
+              <tr>
+                <td class="id">1563313</td>
+                <td>DELTABAG<br><span class="muted">HELOMAX LACRE 23MM</span></td>
+                <td><span class="badge warn">JOB EM APROVAÇÃO</span></td>
+                <td><span class="badge hot">3d atrasado</span></td>
+              </tr>
+              <tr>
+                <td class="id">1561257</td>
+                <td>PACKSEVEN<br><span class="muted">SACOLA VOLTE SEMPRE</span></td>
+                <td><span class="badge info">ANÁLISE TÉCNICA</span></td>
+                <td><span class="muted">em andamento</span></td>
+              </tr>
+              <tr>
+                <td class="id">1556816</td>
+                <td>PACKSEVEN<br><span class="muted">MOINHO REAL ULTRA</span></td>
+                <td><span class="badge warn">JOB EM APROVAÇÃO</span></td>
+                <td><span class="badge hot">11d atrasado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        <section class="card">
+          <h2>Distribuição por cliente</h2>
+          <div class="progress">
+            <div class="p-item"><div class="top"><span>RIO NOVO</span><span>38</span></div><div class="track"><div class="fill a"></div></div></div>
+            <div class="p-item"><div class="top"><span>EPEMA</span><span>31</span></div><div class="track"><div class="fill b"></div></div></div>
+            <div class="p-item"><div class="top"><span>SOLPP</span><span>18</span></div><div class="track"><div class="fill c"></div></div></div>
+            <div class="p-item"><div class="top"><span>SIDPLASTIC</span><span>14</span></div><div class="track"><div class="fill d"></div></div></div>
+          </div>
+          <div class="note">
+            Esta opção prioriza clareza e produtividade. Menos “efeito visual”, mais densidade útil para filtrar, priorizar e gerar relatório.
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

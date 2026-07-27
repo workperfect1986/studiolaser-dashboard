@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Opção A · Editorial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4efe6;
+      --ink: #1c1915;
+      --muted: #6f675c;
+      --line: #ddd2c1;
+      --card: #fffdf8;
+      --accent: #b23a2f;
+      --good: #2f6b4f;
+      --warn: #b7791f;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Manrope, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(178,58,47,.08), transparent 28%),
+        linear-gradient(180deg, #f7f2ea 0%, var(--bg) 100%);
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 28px;
+    }
+    .frame {
+      max-width: 1280px;
+      margin: 0 auto;
+      border: 1px solid var(--line);
+      background: rgba(255,253,248,.72);
+      box-shadow: 0 30px 80px rgba(70,50,20,.08);
+      overflow: hidden;
+    }
+    .top {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero {
+      padding: 34px 36px 28px;
+      border-right: 1px solid var(--line);
+    }
+    .kicker {
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: "Instrument Serif", Georgia, serif;
+      font-size: 54px;
+      line-height: .95;
+      font-weight: 400;
+      max-width: 10ch;
+      margin-bottom: 14px;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+    .lead {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 42ch;
+      line-height: 1.55;
+    }
+    .side {
+      padding: 28px 28px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: #1c1915;
+      color: #f4efe6;
+    }
+    .side .label { color: #b8aea0; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+    .side .value { font-family: "Instrument Serif", serif; font-size: 64px; line-height: 1; margin: 10px 0 8px; }
+    .side .meta { color: #cfc4b4; font-size: 13px; }
+    .actions { display: flex; gap: 10px; margin-top: 22px; }
+    .btn {
+      border: 1px solid #f4efe6;
+      background: transparent;
+      color: #f4efe6;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn.solid { background: var(--accent); border-color: var(--accent); }
+    .strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--line);
+    }
+    .stat {
+      padding: 22px 24px;
+      border-right: 1px solid var(--line);
+      background: var(--card);
+    }
+    .stat:last-child { border-right: 0; }
+    .stat .l { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+    .stat .v { font-family: "Instrument Serif", serif; font-size: 40px; margin-top: 8px; }
+    .stat .s { color: var(--muted); font-size: 12px; margin-top: 4px; }
+    .main {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      min-height: 420px;
+    }
+    .panel {
+      padding: 28px;
+      border-right: 1px solid var(--line);
+    }
+    .panel:last-child { border-right: 0; background: #faf6ef; }
+    .panel h2 {
+      font-family: "Instrument Serif", serif;
+      font-size: 28px;
+      font-weight: 400;
+      margin-bottom: 18px;
+    }
+    .bars { display: grid; gap: 14px; }
+    .bar-row { display: grid; grid-template-columns: 110px 1fr 36px; gap: 12px; align-items: center; }
+    .bar-row span { font-size: 13px; color: var(--muted); }
+    .track { height: 10px; background: #ebe2d3; overflow: hidden; }
+    .fill { height: 100%; background: linear-gradient(90deg, #1c1915, var(--accent)); }
+    .list { display: grid; gap: 0; }
+    .item {
+      display: grid;
+      grid-template-columns: 84px 1fr auto;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      align-items: center;
+    }
+    .item:last-child { border-bottom: 0; }
+    .id { font-weight: 700; font-size: 13px; }
+    .name { font-size: 14px; }
+    .name small { display: block; color: var(--muted); margin-top: 3px; }
+    .tag {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 6px 8px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .tag.warn { color: var(--warn); border-color: #e7d0a4; background: #fff8ea; }
+    .tag.good { color: var(--good); border-color: #b9d6c6; background: #eef8f2; }
+    .tag.hot { color: var(--accent); border-color: #e8b8b2; background: #fff1ef; }
+    .badge {
+      display: inline-block;
+      margin-top: 18px;
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <div class="top">
+      <div class="hero">
+        <div class="kicker">Opção A · Editorial Print</div>
+        <h1>Fluxo com cara de <em>relatório</em></h1>
+        <p class="lead">Visual tipográfico, papel quente e hierarquia de revista. Ideal se o dashboard deve parecer um briefing operacional premium.</p>
+        <div class="badge">Studio Laser · Work Orders</div>
+      </div>
+      <div class="side">
+        <div>
+          <div class="label">Importados</div>
+          <div class="value">133</div>
+          <div class="meta">sem status Deletado · atualização manual</div>
+        </div>
+        <div class="actions">
+          <button class="btn solid">Atualizar dados</button>
+          <button class="btn">Relatório PDF</button>
+        </div>
+      </div>
+    </div>
+    <div class="strip">
+      <div class="stat"><div class="l">Atrasados</div><div class="v">48</div><div class="s">despacho vencido</div></div>
+      <div class="stat"><div class="l">Em aprovação</div><div class="v">129</div><div class="s">maior volume</div></div>
+      <div class="stat"><div class="l">Clientes</div><div class="v">27</div><div class="s">carteira ativa</div></div>
+      <div class="stat"><div class="l">Média atraso</div><div class="v">11d</div><div class="s">entre vencidos</div></div>
+    </div>
+    <div class="main">
+      <div class="panel">
+        <h2>Top clientes</h2>
+        <div class="bars">
+          <div class="bar-row"><span>RIO NOVO</span><div class="track"><div class="fill" style="width:92%"></div></div><span>38</span></div>
+          <div class="bar-row"><span>EPEMA</span><div class="track"><div class="fill" style="width:74%"></div></div><span>31</span></div>
+          <div class="bar-row"><span>SOLPP</span><div class="track"><div class="fill" style="width:48%"></div></div><span>18</span></div>
+          <div class="bar-row"><span>SIDPLASTIC</span><div class="track"><div class="fill" style="width:36%"></div></div><span>14</span></div>
+          <div class="bar-row"><span>PACKSEVEN</span><div class="track"><div class="fill" style="width:28%"></div></div><span>11</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Fila crítica</h2>
+        <div class="list">
+          <div class="item"><div class="id">1567141</div><div class="name">BUQUE FARINHA DE TRIGO TP1 1KG<small>EPEMA · CTA GUILHERME</small></div><div class="tag hot">2d atrasado</div></div>
+          <div class="item"><div class="id">1563313</div><div class="name">HELOMAX LACRE 23MM<small>DELTABAG · JOB EM APROVAÇÃO</small></div><div class="tag warn">3d atrasado</div></div>
+          <div class="item"><div class="id">1561257</div><div class="name">SACOLA VOLTE SEMPRE FORTEBAG<small>PACKSEVEN · ANÁLISE TÉCNICA</small></div><div class="tag good">em análise</div></div>
+          <div class="item"><div class="id">1556816</div><div class="name">MOINHO REAL ULTRA 12X350ML<small>PACKSEVEN · JOB EM APROVAÇÃO</small></div><div class="tag warn">11d atrasado</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

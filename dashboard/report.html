@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Relatório PDF · Studio Laser</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0b1220; --bg2: #111a2e; --card: #152038; --card2: #1a2740;
+      --border: rgba(148,163,184,.12); --text: #e8eef9; --muted: #8b9bb8;
+      --accent2: #22d3ee; --shadow: 0 10px 40px rgba(0,0,0,.35); --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "DM Sans", system-ui, sans-serif;
+      background: radial-gradient(1000px 500px at 0% 0%, #1e3a5f 0%, transparent 50%), var(--bg);
+      color: var(--text); min-height: 100vh;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; }
+    header { display: flex; flex-wrap: wrap; gap: 14px; justify-content: space-between; align-items: flex-end; margin-bottom: 18px; }
+    .eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent2); font-weight: 600; }
+    h1 { font-size: 1.8rem; font-weight: 700; }
+    .sub { color: var(--muted); margin-top: 4px; }
+    .nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .nav a {
+      text-decoration: none; color: #bfdbfe; border: 1px solid rgba(59,130,246,.3);
+      background: rgba(59,130,246,.12); padding: 8px 12px; border-radius: 10px; font-size: .85rem; font-weight: 600;
+    }
+    .nav a.active { background: rgba(124,58,237,.28); color: #fff; border-color: rgba(167,139,250,.45); }
+    .nav .btn { padding: 8px 12px; font-size: .85rem; margin: 0; }
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--card2));
+      border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 18px; margin-bottom: 14px;
+    }
+    .card h2 { font-size: .95rem; margin-bottom: 12px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; }
+    .field { display: flex; flex-direction: column; min-width: 140px; }
+    .field.grow { flex: 1; min-width: 180px; }
+    .field label { font-size: .72rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; text-transform: uppercase; }
+    input, select {
+      background: var(--bg2); border: 1px solid var(--border); color: var(--text);
+      border-radius: 10px; padding: 9px 11px; font: inherit; outline: none;
+    }
+    .btn {
+      background: linear-gradient(135deg, #7c3aed, #2563eb); border: none; color: #fff;
+      font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    }
+    .btn:disabled { opacity: .55; cursor: wait; }
+    .btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .hint { color: var(--muted); font-size: .82rem; margin-top: 8px; }
+    .tools { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
+    .tools input { flex: 1; min-width: 200px; }
+    .count { margin-left: auto; color: var(--muted); font-size: .85rem; }
+    .company-list {
+      max-height: 420px; overflow: auto; border: 1px solid var(--border);
+      border-radius: 12px; background: rgba(15,23,42,.35);
+    }
+    .company-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      border-bottom: 1px solid var(--border); cursor: pointer;
+    }
+    .company-item:hover { background: rgba(59,130,246,.08); }
+    .company-item input { width: 16px; height: 16px; }
+    .company-item .name { font-weight: 600; }
+    .company-item .meta { color: var(--muted); font-size: .8rem; margin-left: auto; font-family: "JetBrains Mono", monospace; }
+    .summary {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px;
+    }
+    @media (max-width: 800px) { .summary { grid-template-columns: repeat(2,1fr); } }
+    .kpi { background: rgba(15,23,42,.45); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+    .kpi .l { color: var(--muted); font-size: .72rem; text-transform: uppercase; font-weight: 600; }
+    .kpi .v { font-size: 1.4rem; font-weight: 700; margin-top: 4px; }
+    .msg { margin-top: 10px; color: #fca5a5; font-size: .9rem; min-height: 1.2em; }
+    .ok { color: #86efac; }
+    .loading { display: none; color: var(--muted); }
+    .loading.show { display: inline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="eyebrow">Módulo separado</div>
+        <h1>Relatório PDF por empresas</h1>
+        <p class="sub">Selecione as empresas que devem entrar no relatório</p>
+      </div>
+      <div class="nav">
+        <button class="btn" id="btnLoad" type="button">Carregar trabalhos</button>
+        <a href="/">Dashboard</a>
+        <a class="active" href="/relatorio">Relatório PDF</a>
+      </div>
+    </header>
+    <div class="msg" id="msg" style="margin:-6px 0 14px;"></div>
+
+    <section class="card">
+      <h2>1. Selecionar empresas</h2>
+      <div class="tools">
+        <input id="searchCo" type="search" placeholder="Buscar empresa..." />
+        <button class="btn ghost" id="btnAll" type="button">Marcar todas</button>
+        <button class="btn ghost" id="btnNone" type="button">Desmarcar</button>
+        <span class="count" id="selCount">0 selecionadas</span>
+      </div>
+      <div class="company-list" id="companyList">
+        <div style="padding:20px;color:var(--muted);text-align:center;">Carregue os trabalhos para listar as empresas</div>
+      </div>
+      <div class="summary">
+        <div class="kpi"><div class="l">Empresas</div><div class="v" id="kEmp">0</div></div>
+        <div class="kpi"><div class="l">Selecionadas</div><div class="v" id="kSel">0</div></div>
+        <div class="kpi"><div class="l">Trabalhos no PDF</div><div class="v" id="kJobs">0</div></div>
+        <div class="kpi"><div class="l">Total carregado</div><div class="v" id="kTotal">0</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Gerar PDF</h2>
+      <div class="row">
+        <button class="btn" id="btnPdf" type="button" disabled>Gerar relatório PDF</button>
+        <span class="loading" id="loading">Gerando…</span>
+      </div>
+      <div class="hint">O PDF inclui apenas as empresas marcadas: capa, KPIs, gráficos e tabela detalhada.</div>
+    </section>
+  </div>
+
+  <script>
+    let orders = [];
+    let companies = []; // {name, count, checked}
+
+    function qs(params){
+      const p = new URLSearchParams();
+      Object.entries(params).forEach(([k,v]) => { if (v !== "" && v != null) p.set(k, v); });
+      return p.toString();
+    }
+    function setMsg(t, ok=false){
+      const el = document.getElementById("msg");
+      el.textContent = t || "";
+      el.className = "msg" + (ok ? " ok" : "");
+    }
+
+    async function loadData(){
+      const btn = document.getElementById("btnLoad");
+      btn.disabled = true;
+      setMsg("Carregando trabalhos…");
+      try {
+        const params = {
+          all: "1",
+          force: "1",
+          operador_id: "",
+          company_id: ""
+        };
+        const res = await fetch("/api/work_orders?" + qs(params));
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Falha ao carregar");
+        orders = data.orders || [];
+        const map = {};
+        orders.forEach(o => {
+          const n = o.cliente || "Sem cliente";
+          map[n] = (map[n] || 0) + 1;
+        });
+        companies = Object.entries(map)
+          .sort((a,b) => a[0].localeCompare(b[0], "pt-BR"))
+          .map(([name, count]) => ({ name, count, checked: true }));
+        renderCompanies();
+        document.getElementById("btnPdf").disabled = companies.length === 0;
+        setMsg(`${orders.length} trabalhos · ${companies.length} empresas`, true);
+      } catch (e) {
+        setMsg(String(e.message || e));
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function selectedCompanies(){
+      return companies.filter(c => c.checked).map(c => c.name);
+    }
+    function selectedJobsCount(){
+      const set = new Set(selectedCompanies());
+      return orders.filter(o => set.has(o.cliente || "Sem cliente")).length;
+    }
+    function updateSummary(){
+      const sel = selectedCompanies();
+      document.getElementById("kEmp").textContent = companies.length;
+      document.getElementById("kSel").textContent = sel.length;
+      document.getElementById("kJobs").textContent = selectedJobsCount();
+      document.getElementById("kTotal").textContent = orders.length;
+      document.getElementById("selCount").textContent = `${sel.length} selecionadas`;
+      document.getElementById("btnPdf").disabled = sel.length === 0 || orders.length === 0;
+    }
+
+    function renderCompanies(){
+      const q = document.getElementById("searchCo").value.trim().toLowerCase();
+      const box = document.getElementById("companyList");
+      const list = companies.filter(c => !q || c.name.toLowerCase().includes(q));
+      if (!list.length) {
+        box.innerHTML = `<div style="padding:20px;color:var(--muted);text-align:center;">Nenhuma empresa</div>`;
+        updateSummary();
+        return;
+      }
+      box.innerHTML = list.map(c => `
+        <label class="company-item">
+          <input type="checkbox" data-name="${c.name.replace(/"/g,'&quot;')}" ${c.checked ? "checked" : ""} />
+          <span class="name">${c.name}</span>
+          <span class="meta">${c.count} OS</span>
+        </label>
+      `).join("");
+      box.querySelectorAll("input[type=checkbox]").forEach(cb => {
+        cb.addEventListener("change", () => {
+          const item = companies.find(x => x.name === cb.dataset.name);
+          if (item) item.checked = cb.checked;
+          updateSummary();
+        });
+      });
+      updateSummary();
+    }
+
+    async function generatePdf(){
+      const sel = selectedCompanies();
+      if (!sel.length) {
+        setMsg("Selecione ao menos uma empresa");
+        return;
+      }
+      const btn = document.getElementById("btnPdf");
+      const loading = document.getElementById("loading");
+      btn.disabled = true;
+      loading.classList.add("show");
+      setMsg("");
+      try {
+        const res = await fetch("/api/report.pdf", {
+          method: "POST",
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({
+            clientes: sel,
+            force: true
+          })
+        });
+        if (!res.ok) {
+          let err = "Falha ao gerar PDF";
+          try { const j = await res.json(); err = j.error || err; } catch(_){}
+          throw new Error(err);
+        }
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `relatorio_empresas_${new Date().toISOString().slice(0,16).replace(/[-:T]/g,"")}.pdf`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+        setMsg(`PDF gerado com ${sel.length} empresa(s) e ${selectedJobsCount()} trabalho(s)`, true);
+      } catch (e) {
+        setMsg(String(e.message || e));
+      } finally {
+        btn.disabled = false;
+        loading.classList.remove("show");
+        updateSummary();
+      }
+    }
+
+    document.getElementById("btnLoad").addEventListener("click", loadData);
+    document.getElementById("btnPdf").addEventListener("click", generatePdf);
+    document.getElementById("searchCo").addEventListener("input", renderCompanies);
+    document.getElementById("btnAll").addEventListener("click", () => {
+      companies.forEach(c => c.checked = true);
+      renderCompanies();
+    });
+    document.getElementById("btnNone").addEventListener("click", () => {
+      companies.forEach(c => c.checked = false);
+      renderCompanies();
+    });
+
+  </script>
+</body>
+</html>

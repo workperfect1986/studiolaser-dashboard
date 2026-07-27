@@ -1,0 +1,27 @@
+# Secrets / local env
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local runtime / browser tooling
+.playwright-mcp/
+*.log
+
+# Generated previews / temp
+dashboard/relatorio_preview.pdf
+dashboard/sample_report.pdf
+dashboard/_*.py
+dashboard/_*.html
