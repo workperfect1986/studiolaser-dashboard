@@ -455,6 +455,8 @@
       document.getElementById("footerError").textContent = data.error
         ? data.error
         : (removed ? `Importados ${allOrders.length} · brutos ${brutos} · removidos Deletado: ${removed}` : "");
+      // Salva no sessionStorage para compartilhar com página de relatório
+      try { sessionStorage.setItem('studiolaser_orders', JSON.stringify({ orders: allOrders, filtro: data.filtro || {}, generatedAt: data.generatedAt || new Date().toISOString() })); } catch (_) {}
       fillLocalOptions();
       renderAll();
     }

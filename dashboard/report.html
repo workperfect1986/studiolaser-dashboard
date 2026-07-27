@@ -84,18 +84,16 @@
       <div>
         <div class="eyebrow">Módulo separado</div>
         <h1>Relatório PDF por empresas</h1>
-        <p class="sub">Selecione as empresas que devem entrar no relatório</p>
+        <p class="sub">Use os dados já carregados no Dashboard. Selecione as empresas para o PDF.</p>
       </div>
       <div class="nav">
-        <button class="btn" id="btnLoad" type="button">Carregar trabalhos</button>
         <a href="/">Dashboard</a>
         <a class="active" href="/relatorio">Relatório PDF</a>
       </div>
     </header>
-    <div class="msg" id="msg" style="margin:-6px 0 14px;"></div>
 
     <section class="card">
-      <h2>1. Carregar dados</h2>
+      <h2>1. Dados (vindos do Dashboard)</h2>
       <div class="row">
         <div class="field grow">
           <label>URL base</label>
@@ -109,14 +107,33 @@
           <label>Data final</label>
           <input id="fDateAte" type="date" />
         </div>
-        <button class="btn" id="btnLoad" type="button">Carregar trabalhos</button>
+        <button class="btn" id="btnLoad" type="button">Sincronizar do Dashboard</button>
       </div>
-      <div class="hint">Os dados vêm de /fluxo_servicos. A seleção de empresas é feita localmente sobre a coluna Cliente.</div>
+      <div class="hint">Os dados vêm da sessão do Dashboard. Se vazio, clique em "Sincronizar" para buscar do Nucleus.</div>
       <div class="msg" id="msg"></div>
     </section>
 
     <section class="card">
-      <h2>2. Gerar PDF</h2>
+      <h2>2. Selecionar empresas</h2>
+      <div class="tools">
+        <input id="searchCo" type="search" placeholder="Buscar empresa..." />
+        <button class="btn ghost" id="btnAll" type="button">Marcar todas</button>
+        <button class="btn ghost" id="btnNone" type="button">Desmarcar</button>
+        <span class="count" id="selCount">0 selecionadas</span>
+      </div>
+      <div class="company-list" id="companyList">
+        <div style="padding:20px;color:var(--muted);text-align:center;">Carregue os dados primeiro</div>
+      </div>
+      <div class="summary">
+        <div class="kpi"><div class="l">Empresas</div><div class="v" id="kEmp">0</div></div>
+        <div class="kpi"><div class="l">Selecionadas</div><div class="v" id="kSel">0</div></div>
+        <div class="kpi"><div class="l">Trabalhos no PDF</div><div class="v" id="kJobs">0</div></div>
+        <div class="kpi"><div class="l">Total carregado</div><div class="v" id="kTotal">0</div></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Gerar PDF</h2>
       <div class="row">
         <button class="btn" id="btnPdf" type="button" disabled>Gerar relatório PDF</button>
         <span class="loading" id="loading">Gerando…</span>
@@ -125,7 +142,7 @@
     </section>
   </div>
 
-<script>
+  <script>
     let orders = [];
     let companies = []; // {name, count, checked}
 
@@ -141,10 +158,27 @@
     }
     function getVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
 
+    // Tenta carregar do sessionStorage (dados do Dashboard)
+    function loadFromSession(){
+      try {
+        const raw = sessionStorage.getItem('studiolaser_orders');
+        if (raw) {
+          const data = JSON.parse(raw);
+          orders = data.orders || [];
+          if (orders.length) {
+            buildCompanies();
+            setMsg(`${orders.length} trabalhos carregados do Dashboard`, true);
+            return true;
+          }
+        }
+      } catch (_) {}
+      return false;
+    }
+
     async function loadData(){
       const btn = document.getElementById("btnLoad");
       btn.disabled = true;
-      setMsg("Carregando trabalhos…");
+      setMsg("Carregando do Nucleus…");
       try {
         const params = {
           all: "1",
@@ -158,22 +192,26 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Falha ao carregar");
         orders = data.orders || [];
-        const map = {};
-        orders.forEach(o => {
-          const n = o.cliente || "Sem cliente";
-          map[n] = (map[n] || 0) + 1;
-        });
-        companies = Object.entries(map)
-          .sort((a,b) => a[0].localeCompare(b[0], "pt-BR"))
-          .map(([name, count]) => ({ name, count, checked: true }));
-        renderCompanies();
-        document.getElementById("btnPdf").disabled = companies.length === 0;
+        buildCompanies();
         setMsg(`${orders.length} trabalhos · ${companies.length} empresas`, true);
       } catch (e) {
         setMsg(String(e.message || e));
       } finally {
         btn.disabled = false;
       }
+    }
+
+    function buildCompanies(){
+      const map = {};
+      orders.forEach(o => {
+        const n = o.cliente || "Sem cliente";
+        map[n] = (map[n] || 0) + 1;
+      });
+      companies = Object.entries(map)
+        .sort((a,b) => a[0].localeCompare(b[0], "pt-BR"))
+        .map(([name, count]) => ({ name, count, checked: true }));
+      renderCompanies();
+      document.getElementById("btnPdf").disabled = companies.length === 0;
     }
 
     function selectedCompanies(){
@@ -262,17 +300,34 @@
       }
     }
 
-    document.getElementById("btnLoad").addEventListener("click", loadData);
-    document.getElementById("btnPdf").addEventListener("click", generatePdf);
-    document.getElementById("searchCo").addEventListener("input", renderCompanies);
-    document.getElementById("btnAll").addEventListener("click", () => {
-      companies.forEach(c => c.checked = true);
-      renderCompanies();
-    });
-    document.getElementById("btnNone").addEventListener("click", () => {
-      companies.forEach(c => c.checked = false);
-      renderCompanies();
-    });
+    function setMsg(t, ok=false){
+      const el = document.getElementById("msg");
+      el.textContent = t || "";
+      el.className = "msg" + (ok ? " ok" : "");
+    }
+    function getVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+
+    // Init
+    (async () => {
+      // Tenta carregar do sessionStorage (dados do Dashboard)
+      if (!loadFromSession()) {
+        setMsg("Nenhum dado do Dashboard. Clique em 'Sincronizar' ou carregue no Dashboard primeiro.");
+      }
+      // Carrega config do servidor
+      try {
+        const res = await fetch("/api/config");
+        if (res.ok) {
+          const cfg = await res.json();
+          document.getElementById("cfgBaseUrl").value = cfg.baseUrl || "";
+        }
+      } catch (_) {}
+
+      document.getElementById("btnLoad").addEventListener("click", loadData);
+      document.getElementById("btnPdf").addEventListener("click", generatePdf);
+      document.getElementById("searchCo").addEventListener("input", renderCompanies);
+      document.getElementById("btnAll").addEventListener("click", () => { companies.forEach(c => c.checked = true); renderCompanies(); });
+      document.getElementById("btnNone").addEventListener("click", () => { companies.forEach(c => c.checked = false); renderCompanies(); });
+    })();
   </script>
 </body>
 </html>
