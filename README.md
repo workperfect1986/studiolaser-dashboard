@@ -64,7 +64,10 @@ Abra:
 4. **Settings** → **Networking** → **Generate Domain**.
 5. Aguarde o deploy. A app sobe com Gunicorn na porta `$PORT` do Railway.
 
-Arquivos de deploy: `Procfile`, `railway.toml`, `nixpacks.toml`, `requirements.txt`.
+Arquivos de deploy: `Dockerfile`, `railway.toml`, `Procfile`, `requirements.txt`.
+
+Se o build falhar no Nixpacks, o projeto usa **Dockerfile** (Python 3.12 + Gunicorn).
+Variáveis sensíveis devem ficar em **Variables** (runtime), não como build args.
 
 ## Segurança
 

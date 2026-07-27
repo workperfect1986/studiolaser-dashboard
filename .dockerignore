@@ -1,0 +1,11 @@
+.git
+.tools
+.playwright-mcp
+__pycache__
+*.pyc
+.env
+.env.*
+!.env.example
+*.log
+dashboard/relatorio_preview.pdf
+dashboard/sample_report.pdf
