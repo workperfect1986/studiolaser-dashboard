@@ -27,3 +27,5 @@ dashboard/_*.py
 dashboard/_*.html
 
 .tools/
+
+*.pdf
