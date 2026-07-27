@@ -691,9 +691,26 @@ def api_work_orders():
 @login_required
 def api_report_pdf():
     try:
-        data = get_data(force=True)
+        body = request.get_json(silent=True) or {}
+        clientes = body.get("clientes") or []
+        if isinstance(clientes, str):
+            clientes = [c.strip() for c in clientes.split(",") if c.strip()]
+        if not isinstance(clientes, list):
+            clientes = []
+        filters = {
+            "date_de": body.get("date_de", ""),
+            "date_ate": body.get("date_ate", ""),
+        }
+        data = get_data(filters=filters, force=True)
+        # Filtra localmente por empresas selecionadas
+        if clientes:
+            wanted = {c.strip().lower() for c in clientes if c and str(c).strip()}
+            all_orders = data.get("orders") or []
+            filtered = [o for o in all_orders if (o.get("cliente") or "").strip().lower() in wanted]
+            data["orders"] = filtered
+            data["total"] = len(filtered)
         pdf_bytes = build_pdf(data)
-        fname = f"fluxo_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
+        fname = f"relatorio_{datetime.now().strftime('%Y%m%d_%H%M')}.pdf"
         return send_file(io.BytesIO(pdf_bytes), mimetype="application/pdf", as_attachment=True, download_name=fname)
     except Exception as exc:
         return jsonify({"error": str(exc)}), 502
