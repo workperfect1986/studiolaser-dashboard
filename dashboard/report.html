@@ -157,6 +157,7 @@
       el.className = "msg" + (ok ? " ok" : "");
     }
     function getVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+    function toBR(v){ if(!v) return ""; const p=v.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; }
 
     // Tenta carregar do sessionStorage (dados do Dashboard)
     function loadFromSession(){
@@ -175,6 +176,8 @@
       return false;
     }
 
+    function toBR(d) { if (!d) return ""; const [y,m,day] = d.split("-"); return `${day}/${m}/${y}`; }
+
     async function loadData(){
       const btn = document.getElementById("btnLoad");
       btn.disabled = true;
@@ -185,8 +188,8 @@
           force: "1",
           operador_id: "",
           company_id: "",
-          date_de: getVal("fDateDe"),
-          date_ate: getVal("fDateAte")
+          date_de: toBR(getVal("fDateDe")),
+          date_ate: toBR(getVal("fDateAte"))
         };
         const res = await fetch("/api/work_orders?" + qs(params));
         const data = await res.json();
@@ -274,8 +277,8 @@
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({
             clientes: sel,
-            date_de: getVal("fDateDe"),
-            date_ate: getVal("fDateAte"),
+            date_de: toBR(getVal("fDateDe")),
+            date_ate: toBR(getVal("fDateAte")),
             force: true
           })
         });
