@@ -546,7 +546,7 @@ def build_pdf(data: dict[str, Any]) -> bytes:
     pdf.set_text_color(148, 163, 184)
     pdf.cell(0, 6, "Ordenado por atraso", align="R")
 
-    cols = [("ID OS", 22), ("Cliente", 34), ("Nome", 78), ("Despacho", 22), ("Atraso", 18), ("Etapa", 52), ("Operador", 30)]
+    cols = [("ID OS", 22), ("Cliente", 34), ("Nome", 78), ("Etapa", 52), ("Operador", 30)]
 
     def th():
         pdf.set_fill_color(30, 41, 59)
@@ -572,14 +572,6 @@ def build_pdf(data: dict[str, Any]) -> bytes:
             pdf.add_page()
             th()
             pdf.set_font("Helvetica", "", 6.5)
-        d = _parse_br_date(o.get("previsao") or "")
-        if not d:
-            atr_txt = "-"
-            atr_rgb = (148, 163, 184)
-        else:
-            dd = (hoje - d).days
-            atr_txt = f"{dd}d" if dd > 0 else "0d" if dd == 0 else f"{abs(dd)}d"
-            atr_rgb = (239, 68, 68) if dd > 0 else (245, 158, 11) if dd == 0 else (34, 197, 94)
         bg = (248, 250, 252) if idx % 2 == 0 else (255, 255, 255)
         x_start = 12
         pdf.set_fill_color(*bg)
@@ -592,8 +584,6 @@ def build_pdf(data: dict[str, Any]) -> bytes:
             (_pdf_safe(o.get("idOs"), 14), 20, (37, 99, 235)),
             (_pdf_safe(o.get("cliente"), 22), 34, (30, 41, 59)),
             (_pdf_safe(o.get("nome"), 50), 78, (30, 41, 59)),
-            (_pdf_safe(o.get("previsao") or "-", 12), 22, (30, 41, 59)),
-            (atr_txt, 18, atr_rgb),
             (_pdf_safe(o.get("etapa"), 34), 52, srgb),
             (_pdf_safe(o.get("operador"), 18), 30, (100, 116, 139)),
         ]
