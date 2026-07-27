@@ -125,7 +125,7 @@
     </section>
   </div>
 
-  <script>
+<script>
     let orders = [];
     let companies = []; // {name, count, checked}
 
@@ -139,6 +139,7 @@
       el.textContent = t || "";
       el.className = "msg" + (ok ? " ok" : "");
     }
+    function getVal(id) { const el = document.getElementById(id); return el ? el.value : ""; }
 
     async function loadData(){
       const btn = document.getElementById("btnLoad");
@@ -150,8 +151,8 @@
           force: "1",
           operador_id: "",
           company_id: "",
-          date_de: document.getElementById("fDateDe").value,
-          date_ate: document.getElementById("fDateAte").value
+          date_de: getVal("fDateDe"),
+          date_ate: getVal("fDateAte")
         };
         const res = await fetch("/api/work_orders?" + qs(params));
         const data = await res.json();
@@ -203,7 +204,7 @@
       }
       box.innerHTML = list.map(c => `
         <label class="company-item">
-          <input type="checkbox" data-name="${c.name.replace(/"/g,'&quot;')}" ${c.checked ? "checked" : ""} />
+          <input type="checkbox" data-name="${c.name.replace(/"/g,'"')}" ${c.checked ? "checked" : ""} />
           <span class="name">${c.name}</span>
           <span class="meta">${c.count} OS</span>
         </label>
@@ -235,8 +236,6 @@
           headers: {"Content-Type":"application/json"},
           body: JSON.stringify({
             clientes: sel,
-            date_de: document.getElementById("fDateDe").value,
-            date_ate: document.getElementById("fDateAte").value,
             force: true
           })
         });
@@ -272,7 +271,6 @@
       companies.forEach(c => c.checked = false);
       renderCompanies();
     });
-
   </script>
 </body>
 </html>
